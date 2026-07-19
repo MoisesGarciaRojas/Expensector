@@ -1,4 +1,4 @@
-package com.expensector
+package com.danielgarcia.expensector
 
 import org.junit.Test
 

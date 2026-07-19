@@ -1,4 +1,4 @@
-package com.expensector
+package com.danielgarcia.expensector
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.expensector", appContext.packageName)
+        assertEquals("com.danielgarcia.expensector", appContext.packageName)
     }
 }
