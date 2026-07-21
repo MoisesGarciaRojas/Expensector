@@ -4,6 +4,7 @@ import com.danielgarcia.expensector.FakeClock
 import com.danielgarcia.expensector.FakePinSecurityRepository
 import com.danielgarcia.expensector.FakePreferencesRepository
 import com.danielgarcia.expensector.FakeProfileRepository
+import com.danielgarcia.expensector.FakeStage2Repository
 import com.danielgarcia.expensector.MainDispatcherRule
 import com.danielgarcia.expensector.security.BiometricAvailability
 import com.danielgarcia.expensector.security.BiometricAvailabilityProvider
@@ -78,6 +79,7 @@ class OnboardingViewModelTest {
         val profileRepository = FakeProfileRepository()
         val preferencesRepository = FakePreferencesRepository()
         val pinRepository = FakePinSecurityRepository()
+        val stage2Repository = FakeStage2Repository()
         val clock = FakeClock(now = 100L)
         return TestOnboardingViewModel(
             profileRepository = profileRepository,
@@ -86,6 +88,7 @@ class OnboardingViewModelTest {
             delegate = OnboardingViewModel(
                 profileRepository,
                 preferencesRepository,
+                stage2Repository,
                 pinRepository,
                 BiometricAvailabilityProvider { BiometricAvailability.Available },
                 clock,

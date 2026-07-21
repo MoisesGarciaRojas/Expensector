@@ -4,9 +4,12 @@ import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.danielgarcia.expensector.data.RoomLocalOwnerProfileRepository
+import com.danielgarcia.expensector.data.RoomStage2Repository
 import com.danielgarcia.expensector.database.ExpensectorDatabase
+import com.danielgarcia.expensector.database.MIGRATION_1_2
 import com.danielgarcia.expensector.domain.AppPreferencesRepository
 import com.danielgarcia.expensector.domain.LocalOwnerProfileRepository
+import com.danielgarcia.expensector.domain.Stage2Repository
 import com.danielgarcia.expensector.platform.Clock
 import com.danielgarcia.expensector.platform.SystemClock
 import com.danielgarcia.expensector.preferences.DataStoreAppPreferencesRepository
@@ -42,6 +45,12 @@ abstract class RepositoryModule {
     abstract fun bindPinSecurityRepository(
         repository: SharedPreferencesPinSecurityRepository,
     ): PinSecurityRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindStage2Repository(
+        repository: RoomStage2Repository,
+    ): Stage2Repository
 }
 
 @Module
@@ -52,11 +61,16 @@ object AppModule {
     fun provideDatabase(@ApplicationContext context: Context): ExpensectorDatabase =
         Room.databaseBuilder(context, ExpensectorDatabase::class.java, "expensector.db")
             .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+            .addMigrations(MIGRATION_1_2)
             .build()
 
     @Provides
     fun provideLocalOwnerProfileDao(database: ExpensectorDatabase) =
         database.localOwnerProfileDao()
+
+    @Provides
+    fun provideStage2Dao(database: ExpensectorDatabase) =
+        database.stage2Dao()
 
     @Provides
     @Singleton

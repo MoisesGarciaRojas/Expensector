@@ -6,6 +6,7 @@ import com.danielgarcia.expensector.core.common.isValidOptionalEmail
 import com.danielgarcia.expensector.domain.AppPreferencesRepository
 import com.danielgarcia.expensector.domain.LocalOwnerProfile
 import com.danielgarcia.expensector.domain.LocalOwnerProfileRepository
+import com.danielgarcia.expensector.domain.Stage2Repository
 import com.danielgarcia.expensector.platform.Clock
 import com.danielgarcia.expensector.security.BiometricAvailability
 import com.danielgarcia.expensector.security.BiometricAvailabilityProvider
@@ -56,6 +57,7 @@ enum class OnboardingError {
 class OnboardingViewModel @Inject constructor(
     private val profileRepository: LocalOwnerProfileRepository,
     private val preferencesRepository: AppPreferencesRepository,
+    private val stage2Repository: Stage2Repository,
     private val pinSecurityRepository: PinSecurityRepository,
     private val biometricAvailabilityChecker: BiometricAvailabilityProvider,
     private val clock: Clock,
@@ -157,6 +159,11 @@ class OnboardingViewModel @Inject constructor(
                     updatedAtEpochMillis = now,
                 )
                 profileRepository.saveProfile(profile)
+                stage2Repository.initializeDefaults(
+                    displayName = "Personal",
+                    currencyCode = current.currencyCode,
+                    trackingStartDate = java.time.LocalDate.now(),
+                )
                 pinSecurityRepository.setPin(current.pin)
                 preferencesRepository.setBiometricEnabled(current.biometricEnabled)
                 preferencesRepository.setOnboardingCompleted(true)

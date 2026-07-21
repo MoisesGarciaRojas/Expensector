@@ -14,6 +14,7 @@ import com.danielgarcia.expensector.R
 import com.danielgarcia.expensector.core.ui.FoundationScreen
 import com.danielgarcia.expensector.feature.authentication.LockScreen
 import com.danielgarcia.expensector.feature.home.HomeScreen
+import com.danielgarcia.expensector.feature.financial.FinancialSetupScreen
 import com.danielgarcia.expensector.feature.onboarding.OnboardingScreen
 import com.danielgarcia.expensector.feature.settings.SettingsScreen
 import com.danielgarcia.expensector.security.BiometricAvailabilityChecker
@@ -23,6 +24,7 @@ import com.danielgarcia.expensector.security.SecuritySessionState
 private object Routes {
     const val Home = "home"
     const val Settings = "settings"
+    const val FinancialSetup = "financial_setup"
 }
 
 @Composable
@@ -58,8 +60,12 @@ private fun AuthenticatedNav(onManualLock: () -> Unit) {
         composable(Routes.Home) {
             HomeScreen(
                 onOpenSettings = { navController.navigate(Routes.Settings) },
+                onOpenFinancialSetup = { navController.navigate(Routes.FinancialSetup) },
                 onManualLock = onManualLock,
             )
+        }
+        composable(Routes.FinancialSetup) {
+            FinancialSetupScreen(onBack = { navController.popBackStack() })
         }
         composable(Routes.Settings) {
             SettingsScreen(
