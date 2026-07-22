@@ -1,16 +1,22 @@
 package com.danielgarcia.expensector.feature.financial
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.danielgarcia.expensector.R
 import com.danielgarcia.expensector.core.ui.FoundationScreen
 import com.danielgarcia.expensector.domain.AccountType
+import com.danielgarcia.expensector.domain.Category
 import com.danielgarcia.expensector.domain.FinancialPurpose
 import com.danielgarcia.expensector.domain.MoneyMinor
 
@@ -112,12 +119,18 @@ fun FinancialSetupScreen(
         FinancialPurpose.entries.forEach { purpose ->
             Text(purpose.name)
             state.categories.filter { it.purpose == purpose && it.parentCategoryId == null }.take(8).forEach { category ->
-                Row {
-                    Text("${category.displayName}${if (category.active) "" else " (archived)"}")
-                    Spacer(androidx.compose.ui.Modifier.width(8.dp))
-                    OutlinedButton(onClick = { viewModel.archiveCategory(category, category.active) }) { Text(if (category.active) stringResource(R.string.archive) else stringResource(R.string.restore)) }
-                    Spacer(androidx.compose.ui.Modifier.width(8.dp))
-                    OutlinedButton(onClick = { viewModel.mergeIntoFirstCompatibleArchived(category) }) { Text(stringResource(R.string.merge)) }
+                CategoryManagementItem(
+                    category = category,
+                    onArchive = { viewModel.archiveCategory(category, category.active) },
+                    onMerge = { viewModel.mergeIntoFirstCompatibleArchived(category) },
+                )
+                state.categories.filter { it.parentCategoryId == category.id }.forEach { child ->
+                    CategoryManagementItem(
+                        category = child,
+                        modifier = Modifier.padding(start = 24.dp),
+                        onArchive = { viewModel.archiveCategory(child, child.active) },
+                        onMerge = { viewModel.mergeIntoFirstCompatibleArchived(child) },
+                    )
                 }
             }
         }
@@ -128,5 +141,35 @@ fun FinancialSetupScreen(
         Text(stringResource(R.string.net_opening_position, MoneyMinor(assetTotal - cardDebt, "MXN").format()))
         state.statusMessage?.let { Text(it) }
         OutlinedButton(onClick = onBack) { Text(stringResource(R.string.back)) }
+    }
+}
+
+@Composable
+private fun CategoryManagementItem(
+    category: Category,
+    onArchive: () -> Unit,
+    onMerge: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Text(
+            text = "${category.displayName}${if (category.active) "" else " (archived)"}",
+            style = if (category.hierarchyLevel == 0) {
+                MaterialTheme.typography.titleSmall
+            } else {
+                MaterialTheme.typography.bodyMedium
+            },
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = onArchive) {
+                Text(if (category.active) stringResource(R.string.archive) else stringResource(R.string.restore))
+            }
+            OutlinedButton(onClick = onMerge) {
+                Text(stringResource(R.string.merge))
+            }
+        }
     }
 }

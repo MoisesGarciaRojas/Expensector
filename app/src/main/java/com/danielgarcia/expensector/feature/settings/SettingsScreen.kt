@@ -103,7 +103,7 @@ fun SettingsScreen(
         )
         Button(
             onClick = {
-                viewModel.changePin(confirmPin, onSecurityInvalidated)
+                viewModel.changePin(confirmPin)
                 confirmPin = ""
             },
         ) {
@@ -144,6 +144,7 @@ private fun SettingsSuccessText(success: SettingsSuccess?) {
     val message = when (success) {
         SettingsSuccess.ProfileSaved -> stringResource(R.string.profile_saved)
         SettingsSuccess.SecurityUpdated -> stringResource(R.string.security_updated)
+        SettingsSuccess.PinChanged -> stringResource(R.string.pin_changed)
         null -> null
     }
     if (message != null) Text(message)

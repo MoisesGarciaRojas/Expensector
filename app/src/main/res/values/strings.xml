@@ -51,6 +51,7 @@
     <string name="back">Back</string>
     <string name="profile_saved">Profile saved.</string>
     <string name="security_updated">Security updated. Please unlock again.</string>
+    <string name="pin_changed">PIN changed successfully.</string>
     <string name="error_display_name_required">Enter a display name.</string>
     <string name="error_invalid_email">Enter a valid email address or leave it blank.</string>
     <string name="error_invalid_pin">PIN must be exactly six numeric digits.</string>
