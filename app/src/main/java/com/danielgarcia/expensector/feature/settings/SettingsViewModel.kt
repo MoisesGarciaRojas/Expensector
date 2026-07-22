@@ -49,6 +49,7 @@ enum class SettingsError {
 enum class SettingsSuccess {
     ProfileSaved,
     SecurityUpdated,
+    PinChanged,
 }
 
 @HiltViewModel
@@ -77,8 +78,8 @@ class SettingsViewModel @Inject constructor(
 
     fun updateDisplayName(value: String) = form.update { it.copy(displayName = value, error = null, successMessage = null) }
     fun updateEmail(value: String) = form.update { it.copy(email = value, error = null, successMessage = null) }
-    fun updateCurrentPin(value: String) = form.update { it.copy(currentPin = value.filter(Char::isDigit).take(6), error = null) }
-    fun updateNewPin(value: String) = form.update { it.copy(newPin = value.filter(Char::isDigit).take(6), error = null) }
+    fun updateCurrentPin(value: String) = form.update { it.copy(currentPin = value.filter(Char::isDigit).take(6), error = null, successMessage = null) }
+    fun updateNewPin(value: String) = form.update { it.copy(newPin = value.filter(Char::isDigit).take(6), error = null, successMessage = null) }
 
     fun saveProfile() {
         val current = state.value
@@ -120,14 +121,38 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun changePin(confirmPin: String, onSecurityInvalidated: () -> Unit) {
+    fun changePin(confirmPin: String) {
         val current = state.value
         if (!PinPolicy.isValid(current.newPin) || current.newPin != confirmPin) {
-            form.update { it.copy(newPin = "", error = SettingsError.PinMismatch) }
+            form.update { it.copy(newPin = "", error = SettingsError.PinMismatch, successMessage = null) }
             return
         }
-        updateSecurityWithCurrentPin(onSecurityInvalidated) {
-            pinSecurityRepository.changePin(current.currentPin, current.newPin)
+        val currentPin = current.currentPin
+        val newPin = current.newPin
+        if (!PinPolicy.isValid(currentPin)) {
+            form.update { it.copy(error = SettingsError.CurrentPinRequired, successMessage = null) }
+            return
+        }
+        viewModelScope.launch {
+            val result = pinSecurityRepository.changePin(currentPin, newPin)
+            when (result) {
+                PinVerificationResult.Success -> form.update {
+                    it.copy(
+                        currentPin = "",
+                        newPin = "",
+                        error = null,
+                        successMessage = SettingsSuccess.PinChanged,
+                    )
+                }
+                else -> form.update {
+                    it.copy(
+                        currentPin = "",
+                        newPin = "",
+                        error = SettingsError.InvalidPin,
+                        successMessage = null,
+                    )
+                }
+            }
         }
     }
 

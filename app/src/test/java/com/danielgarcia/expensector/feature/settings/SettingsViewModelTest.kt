@@ -47,10 +47,24 @@ class SettingsViewModelTest {
         fixture.viewModel.updateCurrentPin("000000")
         fixture.viewModel.updateNewPin("654321")
 
-        fixture.viewModel.changePin("654321") {}
+        fixture.viewModel.changePin("654321")
 
         assertEquals("123456", fixture.pinRepository.pin)
         assertEquals(SettingsError.InvalidPin, fixture.viewModel.state.value.error)
+    }
+
+    @Test
+    fun pinChangeClearsFieldsAndShowsConfirmation() {
+        val fixture = fixture()
+        fixture.viewModel.updateCurrentPin("123456")
+        fixture.viewModel.updateNewPin("654321")
+
+        fixture.viewModel.changePin("654321")
+
+        assertEquals("654321", fixture.pinRepository.pin)
+        assertEquals("", fixture.viewModel.state.value.currentPin)
+        assertEquals("", fixture.viewModel.state.value.newPin)
+        assertEquals(SettingsSuccess.PinChanged, fixture.viewModel.state.value.successMessage)
     }
 
     @Test
